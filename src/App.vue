@@ -1,4 +1,5 @@
 <template>
+
   <div class="wrapper">
     <main>
       <div class="playArea">
@@ -123,15 +124,15 @@
         <div class="modal" style=" transition : all 0.6s ease 0s;">
           
           <div v-if="modalStatus == 50">
-            <img :src="pickedPokemon.src" alt="" class="bigImg">
-            <button @click="showModal = false;pickedPokemon.location = 'fighting'" class="create" v-if="!myFightingPokemon">Use as a battle pokemon</button>
-            <button @click="showModal = false;pickedPokemon.location = 'bench' " class="join" v-if="benchJudge()">Use as a bench pokemon</button>
+            <img :src="selectedPokemon.src" alt="" class="bigImg">
+            <button @click="showModal = false;selectedPokemon.location = 'fighting'" class="create" v-if="fightingJudge()">Use as a battle pokemon</button>
+            <button @click="showModal = false;selectedPokemon.location = 'bench' " class="join" v-if="benchJudge()">Use as a bench pokemon</button>
 
             <button @click="showModal = false" class="close" >Close</button>
           </div>
 
           <div v-if="modalStatus == 100">
-            <img :src="pickedPokemon.src" alt="" class="bigImg">
+            <img :src="selectedPokemon.src" alt="" class="bigImg">
             <button @click="showModal = false" class="close" >Close</button>
             <!-- <form onsubmit="event.preventDefault()">
 
@@ -167,7 +168,7 @@
       return{
         showModal: false,
         modalStatus: 100,
-        pickedPokemon: undefined,
+        selectedPokemon: undefined,
 
         testList: [],
         benchList: [],
@@ -214,7 +215,7 @@
 
 
       showImg(pokemon){
-        this.pickedPokemon = pokemon
+        this.selectedPokemon = pokemon
         this.showModal = true
         this.modalStatus = 100
         if(!this.pickedBattlePokemon){
@@ -261,9 +262,17 @@
         this.myPile[0].location = 'hand'
       },
 
+      fightingJudge(){
+        if(this.myFightingPokemon) return false
+        if(!this.selectedPokemon.isTane) return false
+        return true
+      },
+
       benchJudge(){
         if(!this.myFightingPokemon) return false
         if(this.myBench.length >= 5) return false
+        if(!this.selectedPokemon.isTane) return false
+        // if(this.myBench.) return false
         return true
       },
     },
@@ -341,8 +350,10 @@
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+    
 
     touch-action: manipulation;
+    overflow: hidden; 
   }
 
   .wrapper{
