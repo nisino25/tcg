@@ -124,15 +124,16 @@
         <div class="modal" style=" transition : all 0.6s ease 0s;">
           
           <div v-if="modalStatus == 50">
-            <img :src="selectedPokemon.src" alt="" class="bigImg">
-            <button @click="showModal = false;selectedPokemon.location = 'fighting'" class="create" v-if="fightingJudge()">Use as a battle pokemon</button>
-            <button @click="showModal = false;selectedPokemon.location = 'bench' " class="join" v-if="benchJudge()">Use as a bench pokemon</button>
+            <!-- <span>{{selectedCard.index}}</span> -->
+            <img :src="selectedCard.src" alt="" class="bigImg">
+            <button @click="showModal = false;selectedCard.location = 'fighting'" class="create" v-if="fightingJudge()">Use as a battle pokemon</button>
+            <button @click="showModal = false;selectedCard.location = 'bench' " class="join" v-if="benchJudge()">Use as a bench pokemon</button>
 
             <button @click="showModal = false" class="close" >Close</button>
           </div>
 
           <div v-if="modalStatus == 100">
-            <img :src="selectedPokemon.src" alt="" class="bigImg">
+            <img :src="selectedCard.src" alt="" class="bigImg">
             <button @click="showModal = false" class="close" >Close</button>
             <!-- <form onsubmit="event.preventDefault()">
 
@@ -160,6 +161,7 @@
 
 <script>
   import {mewDeck} from '../src/const/decks/mew'
+  import {lucarioDeck} from '../src/const/decks/lucario'
   export default {
     name: 'App',
     components: {
@@ -168,7 +170,7 @@
       return{
         showModal: false,
         modalStatus: 100,
-        selectedPokemon: undefined,
+        selectedCard: undefined,
 
         testList: [],
         benchList: [],
@@ -176,6 +178,8 @@
 
 
         mewDeck,
+        lucarioDeck,
+
         myDeck: [],
 
         pickedBattlePokemon: false
@@ -215,7 +219,7 @@
 
 
       showImg(pokemon){
-        this.selectedPokemon = pokemon
+        this.selectedCard = pokemon
         this.showModal = true
         this.modalStatus = 100
         if(!this.pickedBattlePokemon){
@@ -226,7 +230,8 @@
 
       distribute(){
         console.log('shuffiling ')
-        this.myDeck = this.mewDeck
+        // this.myDeck = this.mewDeck
+        this.myDeck = this.lucarioDeck
         // check if any tane pokemon
         let flag = false
         for(let i in this.myDeck){
@@ -239,23 +244,41 @@
           return
         } 
 
-        for (let i = this.myDeck.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [this.myDeck[i], this.myDeck[j]] = [this.myDeck[j], this.myDeck[i]];
+        let pokeFlag= false
+        while(!pokeFlag){
+          this.putEverythingBack()
+
+          for (let i = this.myDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.myDeck[i], this.myDeck[j]] = [this.myDeck[j], this.myDeck[i]];
+          }
+  
+          let count = 0
+          // waiting for the tane pokemon
+          while(count< 13){
+            if(count< 7){
+              this.myDeck[count].location = 'hand'
+              if(this.myDeck[count].isTane) pokeFlag = true
+              // if(this.myDeck[count].name == 'タイレーツ') pokeFlag = true
+              // if(this.myDeck[count].type == 'pokemon' && !this.myDeck[count].isTane) pokeFlag = true
+            }else{
+              this.myDeck[count].location = 'side'
+            }
+            count++
+          }
+
+          console.log(`pokeflag: ${pokeFlag}`)
+          
         }
 
-        // for(let i in this.myDeck){
-        //   console.log(myDeck[i].index)
-        // }
 
-        let count = 0
-        while(count< 13){
-          if(count< 7){
-            this.myDeck[count].location = 'hand'
-          }else{
-            this.myDeck[count].location = 'side'
-          }
-          count++
+
+
+      },
+      putEverythingBack(){
+        for(let i in this.myDeck){
+          let card = this.myDeck[i]
+          card.location = 'pile'
         }
       },
       drawMore(){
@@ -264,14 +287,14 @@
 
       fightingJudge(){
         if(this.myFightingPokemon) return false
-        if(!this.selectedPokemon.isTane) return false
+        if(!this.selectedCard.isTane) return false
         return true
       },
 
       benchJudge(){
         if(!this.myFightingPokemon) return false
         if(this.myBench.length >= 5) return false
-        if(!this.selectedPokemon.isTane) return false
+        if(!this.selectedCard.isTane) return false
         // if(this.myBench.) return false
         return true
       },
